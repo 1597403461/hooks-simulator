@@ -1,0 +1,58 @@
+import React from 'react';
+import ReactDOM from 'react-dom';
+
+/**
+ * @description useState
+ */
+
+// 创建数组存储 state
+let hooks: any[] = [];
+// 定义 index
+let hooksIndex = 0;
+function useState(initialState: any) {
+    // 存储当前的 state 对应的 index
+    let currentIndex = hooksIndex;
+    // 初始化 state 值
+    hooks[currentIndex] = hooks[currentIndex] || initialState;
+    // 修改 state 的函数
+    const setState = (newState: any) => {
+        let returnState;
+        if (typeof newState === 'function') {
+            returnState = newState(hooks[currentIndex]);
+        } else {
+            returnState = newState;
+        }
+        // 赋值
+        hooks[currentIndex] = returnState;
+        // 每一次 setState 重新 render， 初始化 hooksIndex
+        hooksIndex = 0;
+        // 每次修改 state 值， 都需要重新渲染页面
+        render();
+    };
+    // 自增为存储下一个 state 做准备
+    hooksIndex += 1;
+    // 返回
+    return [hooks[currentIndex], setState];
+}
+
+const App = () => {
+    const [number, setnumber] = useState(0);
+    const [number2, setNumber2] = useState(0);
+    const handleClick = () => setnumber(number + 1);
+    const handleClick2 = () => setNumber2((number: number) => number + 1);
+    return (
+        <React.Fragment>
+            <h1>useState</h1>
+            <p>number 1: {number}</p>
+            <p>number 2: {number2}</p>
+            <button onClick={handleClick}>click change number 1</button>
+            <button onClick={handleClick2}>click change number 2</button>
+        </React.Fragment>
+    );
+};
+function render() {
+    ReactDOM.render(<App />, document.getElementById('root'));
+    console.log('%c hooks: ', 'color:yellow', hooks);
+}
+
+export default render;
